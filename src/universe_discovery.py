@@ -101,7 +101,7 @@ SEED_UNIVERSE: List[str] = [
     # ---- Materials ----
     "NEM", "FCX", "CLF", "STLD",
     # ---- Communication / Media ----
-    "DIS", "T", "VZ", "ROKU", "PARA",
+    "DIS", "T", "VZ", "ROKU", "PSKY",
     # ---- REITs ----
     "AMT", "PLD", "O",
     # ---- High-momentum / emerging names ----
@@ -306,17 +306,10 @@ class UniverseDiscovery:
         """
         Fetch the most actively traded stocks from Alpaca's screener.
 
-        Args:
-            by: "volume" for most active by share volume,
-                "trades" for most active by number of trades.
-
-        Returns:
-            List of candidate dicts with ticker, source, reason_added.
-            Returns an empty list if the Alpaca screener is unavailable.
-
-        Note: This endpoint may require a paid Alpaca market data subscription.
-        If it fails (free tier), the error is caught and we fall back to yfinance.
+        Tries the alpaca-py SDK first; falls back to a direct REST call
+        if the SDK version does not support the screener endpoint.
         """
+        # --- Try SDK first ---
         try:
             from alpaca.data.historical.stock import StockHistoricalDataClient
             from alpaca.data.requests import MostActivesRequest
@@ -339,13 +332,40 @@ class UniverseDiscovery:
                         "reason_added": f"Alpaca most active by {by}",
                     })
 
-            return candidates
+            if candidates:
+                return candidates
 
         except ImportError:
-            logger.debug("alpaca-py MostActivesRequest not available in this version")
+            logger.debug("alpaca-py MostActivesRequest not available — trying REST fallback")
+        except Exception as e:
+            logger.debug(f"    SDK most-actives ({by}) failed ({type(e).__name__}) — trying REST fallback")
+
+        # --- REST API fallback (works on all alpaca-py versions) ---
+        try:
+            import requests as _requests
+            url = "https://data.alpaca.markets/v1beta1/screener/stocks/most-actives"
+            headers = {
+                "APCA-API-KEY-ID": self.config.alpaca_api_key,
+                "APCA-API-SECRET-KEY": self.config.alpaca_secret_key,
+            }
+            params = {"by": by, "top": 100}
+            resp = _requests.get(url, headers=headers, params=params, timeout=10)
+            if resp.status_code == 200:
+                data = resp.json()
+                candidates = []
+                for item in (data.get("most_actives") or []):
+                    sym = normalize_ticker(item.get("symbol", "") or "")
+                    if sym:
+                        candidates.append({
+                            "ticker": sym,
+                            "source": f"alpaca_most_active_{by}",
+                            "reason_added": f"Alpaca most active by {by}",
+                        })
+                return candidates
+            else:
+                logger.info(f"    Alpaca most-actives ({by}) REST returned {resp.status_code}")
         except Exception as e:
             logger.info(f"    Alpaca most-actives ({by}) unavailable: {type(e).__name__}")
-            logger.debug(f"    Full error: {e}")
 
         return []
 
@@ -357,8 +377,10 @@ class UniverseDiscovery:
         """
         Fetch the top gaining stocks of the day from Alpaca's screener.
 
-        Returns an empty list if unavailable (caught gracefully).
+        Tries the alpaca-py SDK first; falls back to a direct REST call
+        if the SDK version does not support the screener endpoint.
         """
+        # --- Try SDK first ---
         try:
             from alpaca.data.historical.stock import StockHistoricalDataClient
             from alpaca.data.requests import MarketMoversRequest
@@ -385,13 +407,44 @@ class UniverseDiscovery:
                         "reason_added": reason,
                     })
 
-            return candidates
+            if candidates:
+                return candidates
 
         except ImportError:
-            logger.debug("alpaca-py MarketMoversRequest not available in this version")
+            logger.debug("alpaca-py MarketMoversRequest not available — trying REST fallback")
+        except Exception as e:
+            logger.debug(f"    SDK top-movers failed ({type(e).__name__}) — trying REST fallback")
+
+        # --- REST API fallback ---
+        try:
+            import requests as _requests
+            url = "https://data.alpaca.markets/v1beta1/screener/stocks/movers"
+            headers = {
+                "APCA-API-KEY-ID": self.config.alpaca_api_key,
+                "APCA-API-SECRET-KEY": self.config.alpaca_secret_key,
+            }
+            params = {"top": 50}
+            resp = _requests.get(url, headers=headers, params=params, timeout=10)
+            if resp.status_code == 200:
+                data = resp.json()
+                candidates = []
+                for item in (data.get("gainers") or []):
+                    sym = normalize_ticker(item.get("symbol", "") or "")
+                    if sym:
+                        pct = item.get("percent_change")
+                        reason = "Alpaca top gainer"
+                        if pct is not None:
+                            reason += f" (+{float(pct):.1f}%)"
+                        candidates.append({
+                            "ticker": sym,
+                            "source": "alpaca_top_gainer",
+                            "reason_added": reason,
+                        })
+                return candidates
+            else:
+                logger.info(f"    Alpaca top movers REST returned {resp.status_code}")
         except Exception as e:
             logger.info(f"    Alpaca top movers unavailable: {type(e).__name__}")
-            logger.debug(f"    Full error: {e}")
 
         return []
 

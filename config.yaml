@@ -24,9 +24,9 @@ filters:
   min_market_cap: 1000000000     # Reject stocks below $1 Billion market cap
   min_avg_dollar_volume: 50000000  # Reject stocks averaging less than $50M/day traded
   min_avg_share_volume: 1000000  # Reject stocks averaging less than 1M shares/day
-  min_volume_ratio: 2.5          # Today's volume must be 2.5x the 20-day average
-  min_20d_return: 0.10           # Stock must be up more than 10% over 20 trading days
-  min_relative_strength_20d: 0.08  # Stock must beat SPY by 8% over 20 trading days
+  min_volume_ratio: 1.5          # Today's volume must be 1.5x the 20-day average
+  min_20d_return: 0.05           # Stock must be up more than 5% over 20 trading days
+  min_relative_strength_20d: 0.03  # Stock must beat SPY by 3% over 20 trading days
   min_catalyst_score: 8          # Catalyst quality score must be 8 or higher (out of 10)
 
 # --- Technical Indicator Settings ---
@@ -156,16 +156,16 @@ catalyst_scoring:
 alpha_filters:
   earnings_avoidance_days: 5     # Skip BUY if earnings report is within 5 calendar days
   sector_max_positions: 2        # Never hold more than 2 stocks in the same GICS sector
-  max_extension_pct: 0.30        # Skip BUY if price is >30% above its 20-day MA (overextended)
-  gap_up_max_pct: 0.05           # At execution, skip BUY if stock has already gapped up >5%
+  max_extension_pct: 0.60        # Skip BUY if price is >60% above its 20-day MA
+  gap_up_max_pct: 0.08           # At execution, skip BUY if stock has already gapped up >8%
   atr_stop_multiplier: 1.5       # Stop loss = 1.5x ATR (adapts to each stock's volatility)
   atr_max_stop_pct: 0.12         # ATR stop never wider than 12% (safety cap)
-  max_pct_below_52w_high: 0.15   # Skip BUY if price is >15% below its 52-week high
-  require_multi_day_volume: true  # Require elevated volume on at least 1 of prior 2 days
-  max_daily_entries: 3           # Take at most 3 new positions per day (top-ranked only)
-  min_adx: 25                    # Skip BUY if ADX < 25 (weak/choppy trend)
-  max_pre_breakout_range_pct: 0.08  # Skip BUY if 5-day range before breakout > 8% (choppy)
-  require_sector_etf_uptrend: true  # Skip BUY if sector ETF (XLK, XLV…) is below its 50MA
+  max_pct_below_52w_high: 0.25   # Skip BUY if price is >25% below its 52-week high
+  require_multi_day_volume: false # Do not require elevated volume on prior days
+  max_daily_entries: 5           # Take at most 5 new positions per day
+  min_adx: 20                    # Skip BUY if ADX < 20 (weak/choppy trend)
+  max_pre_breakout_range_pct: 0.15  # Skip BUY if 5-day range before breakout > 15%
+  require_sector_etf_uptrend: false  # Do not require sector ETF uptrend
 
 # --- Stage 9: Automation Control ---
 # Controls fully automated paper trading behavior.

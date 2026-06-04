@@ -41,7 +41,7 @@ WorkingDirectory=/home/ubuntu/ai-catalyst-momentum-paper-trader
 ExecStart=/home/ubuntu/ai-catalyst-momentum-paper-trader/venv/bin/python main.py run-bot
 
 # Load API keys and settings from .env file in the project root
-EnvironmentFile=/home/ubuntu/ai-catalyst-momentum-paper-trader/.env
+EnvironmentFile=/home/shahc_ruhaan/ai-catalyst-momentum-paper-trader/.env
 
 # Restart automatically if the process crashes or exits unexpectedly
 Restart=always

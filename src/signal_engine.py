@@ -296,6 +296,18 @@ def evaluate_buy_signal(
     cond_rs = rs is not None and rs >= min_rs
 
     if not (cond_breakout and cond_trend and cond_volume and cond_momentum and cond_rs):
+        reasons = []
+        if not cond_breakout:
+            reasons.append("no_breakout")
+        if not cond_trend:
+            reasons.append(f"below_50ma")
+        if not cond_volume:
+            reasons.append(f"low_volume({vol_ratio:.1f}x)" if vol_ratio else "low_volume(N/A)")
+        if not cond_momentum:
+            reasons.append(f"low_return({ret_20d:.1%})" if ret_20d else "low_return(N/A)")
+        if not cond_rs:
+            reasons.append(f"low_rs({rs:.1%})" if rs else "low_rs(N/A)")
+        logger.debug(f"{ticker}: FAIL core — {', '.join(reasons)}")
         return None, None
 
     # ---- Feature 3: Multi-timeframe momentum confirmation ----

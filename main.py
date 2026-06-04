@@ -657,7 +657,7 @@ def cmd_paper_scan():
         from src.config import load_config, reset_config
         from src.universe_discovery import load_todays_universe, is_todays_universe_fresh, run_discovery
         from src.data_loader import download_price_data, download_spy_data
-        from src.catalyst_scorer import load_catalysts, get_catalyst_count_summary
+        from src.catalyst_scorer import load_all_catalysts, get_catalyst_count_summary
         from src.signal_engine import run_signal_scan, save_needs_review, save_signals_csv
         from src.ranking import rank_signals, calculate_position_size
         from src.options_overlay import generate_options_recommendations, save_options_recommendations
@@ -719,7 +719,7 @@ def cmd_paper_scan():
         print()
         print("  [3/7] Loading catalyst data...")
 
-        catalysts = load_catalysts(cfg.manual_catalyst_path)
+        catalysts = load_all_catalysts(cfg)
         cat_summary = get_catalyst_count_summary(catalysts)
 
         print(f"        {cat_summary['total_tickers']} tickers in catalyst file.")
@@ -730,7 +730,7 @@ def cmd_paper_scan():
             print()
             print("  NOTE: No tradeable catalysts found. All technical passes will go")
             print("        to needs_catalyst_review.csv for your manual research.")
-            print("        To add catalysts, edit: data/catalyst_overrides.csv")
+            print("        Run: python main.py pull-news && python main.py score-catalysts")
 
         # ---- Step 4: Load held positions (for exit checks) ----
         print()
