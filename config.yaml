@@ -1,0 +1,186 @@
+# ============================================================
+# AI Catalyst Momentum Breakout Paper Trader
+# Main Configuration File
+# ============================================================
+# This file controls every setting in the bot.
+# You can edit numbers here without touching any code.
+# YAML format: each line is  key: value
+# Lines starting with # are comments (ignored by the program).
+# ============================================================
+
+# --- Portfolio Settings ---
+portfolio:
+  starting_cash: 100000          # Starting paper money ($100,000)
+  max_positions: 8               # Never hold more than 8 stocks at once
+  target_position_size: 0.18     # Try to put 18% of portfolio into each new trade
+  max_position_size: 0.25        # Never let one stock exceed 25% of portfolio
+  transaction_cost_bps: 5        # Assumed trading fee: 5 basis points (0.05%)
+  slippage_bps: 10               # Assumed slippage: 10 basis points (0.10%)
+
+# --- Universe Quality Filters ---
+# These filters decide which stocks are even allowed to be traded.
+filters:
+  min_price: 5                   # Reject stocks below $5 (penny stocks)
+  min_market_cap: 1000000000     # Reject stocks below $1 Billion market cap
+  min_avg_dollar_volume: 50000000  # Reject stocks averaging less than $50M/day traded
+  min_avg_share_volume: 1000000  # Reject stocks averaging less than 1M shares/day
+  min_volume_ratio: 2.5          # Today's volume must be 2.5x the 20-day average
+  min_20d_return: 0.10           # Stock must be up more than 10% over 20 trading days
+  min_relative_strength_20d: 0.08  # Stock must beat SPY by 8% over 20 trading days
+  min_catalyst_score: 8          # Catalyst quality score must be 8 or higher (out of 10)
+
+# --- Technical Indicator Settings ---
+indicators:
+  breakout_lookback: 20          # "20-day high" breakout uses last 20 days
+  trend_ma: 50                   # 50-day moving average for trend direction
+  exit_ma_fast: 10               # 10-day moving average used for exit signals
+  exit_ma_slow: 20               # 20-day moving average used for big-winner trailing stop
+  relative_strength_lookback: 20 # Compare stock vs SPY over last 20 trading days
+
+# --- Exit / Stop Loss Rules ---
+exits:
+  stop_loss_pct: 0.08            # Sell if stock drops 8% from entry price
+  breakeven_trigger_pct: 0.20    # After +20% gain, move stop to breakeven
+  partial_take_profit_trigger_pct: 0.40  # After +40% gain, sell 1/3 of position
+  big_winner_trigger_pct: 0.75   # After +75% gain, switch to 20-day MA trailing stop
+  max_holding_days: 20           # Never hold a stock longer than 20 trading days
+  stall_days: 5                  # Sell if volume dries up AND price stalls for 5 days
+  rs_weakness_days: 5            # Sell if stock underperforms SPY for 5 straight days
+
+# --- Broker Settings ---
+# WARNING: Do not change paper_only or allow_live_trading.
+broker:
+  provider: alpaca               # We use Alpaca as our broker
+  paper_only: true               # MUST be true. Bot refuses to run if false.
+  allow_live_trading: false      # NEVER set this to true in v1
+  allow_shorting: false          # No short selling allowed
+  allow_margin: false            # No margin/leverage allowed
+  allow_options_trading: false   # No options orders allowed
+  use_market_orders: true        # Use market orders (simplest order type)
+  max_orders_per_day: 10         # Safety limit: never place more than 10 orders/day
+  require_approved_universe: false
+  require_discovered_universe: true  # Must use auto-discovered stocks
+
+# --- Order Execution Settings ---
+execution:
+  buy_timing: next_market_open   # Buy signals execute at next day's market open
+  sell_timing: next_market_open  # Sell signals execute at next day's market open
+  duplicate_order_protection: true  # Never submit two orders for the same stock
+  cancel_stale_open_orders: true    # Cancel orders stuck open for too long
+  stale_order_minutes: 60           # Cancel after 60 minutes
+  order_log_path: reports/orders_log.csv
+  signal_file_path: reports/paper_signals.csv
+  state_file_path: reports/paper_state.json
+
+# --- Universe Discovery Settings ---
+universe_discovery:
+  enabled: true                  # Auto-discovery is ON by default
+  use_fixed_universe_fallback: true  # Fall back to universe_sample.csv if needed
+  max_discovered_symbols: 300    # Cap discovery at 300 candidates per day
+  min_price: 5
+  min_market_cap: 1000000000
+  min_avg_dollar_volume: 50000000
+  min_avg_share_volume: 1000000
+  exclude_otc: true              # Exclude over-the-counter (pink sheet) stocks
+  exclude_warrants_units_preferreds: true  # Exclude warrants, units, preferred shares
+  blocked_symbols_path: data/blocked_symbols.csv
+  discovered_universe_path: reports/daily_discovered_universe.csv
+
+# --- Which Discovery Sources to Use ---
+discovery_sources:
+  alpaca_most_active_by_volume: true   # Alpaca: most traded stocks by volume
+  alpaca_most_active_by_trades: true   # Alpaca: most traded stocks by trade count
+  top_gainers: true                    # Top gaining stocks today
+  yfinance_volume_spike_scan: true     # yfinance: stocks with unusual volume
+  yfinance_breakout_scan: true         # yfinance: stocks making new highs
+  news_discovery: false                # Disabled: requires paid news API
+  polygon_provider_enabled: false      # Disabled: requires Polygon.io subscription
+
+# --- Catalyst Scoring Settings ---
+catalysts:
+  require_catalyst_for_trade: true     # MUST have a catalyst to trade
+  manual_catalyst_path: data/catalyst_overrides.csv
+  needs_review_path: reports/needs_catalyst_review.csv
+  allow_price_only_trades: false       # Never trade on price action alone
+  min_catalyst_score: 8               # Score must be 8 or higher out of 10
+
+# --- Scheduler Settings ---
+scheduler:
+  enabled: true
+  timezone: America/New_York     # All times are US Eastern
+  scan_time: "16:15"             # Run scan at 4:15 PM Eastern (after market close)
+  execute_time: "09:32"          # Execute trades at 9:32 AM Eastern (just after open)
+  reconcile_time: "09:45"        # Reconcile positions at 9:45 AM Eastern
+  intraday_exit_check_time: "15:45"  # Check exits at 3:45 PM Eastern
+  report_time: "16:10"           # Generate report at 4:10 PM Eastern
+  prevent_duplicate_daily_runs: true  # Never run the same task twice on same day
+  scheduler_log_path: reports/scheduler_log.csv
+
+# --- Options Overlay (Recommendations Only - No Trading) ---
+options_overlay:
+  enabled: true
+  max_recommendations: 3         # Recommend call spreads for top 3 signals only
+  target_dte: 75                 # Target 75 days-to-expiration
+  long_call_itm_pct: 0.07        # Long call strike: 7% in-the-money
+  short_call_otm_pct: 0.20       # Short call strike: 20% out-of-the-money
+
+# --- Stage 9: Automated News Discovery ---
+# The bot now pulls news automatically. No manual catalyst entry required.
+news:
+  enabled: true
+  primary_provider: alpaca           # Use Alpaca News API (free with Alpaca account)
+  fallback_provider: yahoo           # Yahoo Finance as fallback (free, no key needed)
+  days_back: 7                       # Pull news from last 7 days
+  max_headlines_per_symbol: 10       # Max headlines per stock
+  news_cache_path: reports/news_cache.csv
+  require_recent_news: true          # Only trade if news is within max_news_age_days
+  max_news_age_days: 7               # News older than 7 days is considered stale
+  deduplicate: true                  # Remove duplicate headlines
+
+# --- Stage 9: Automated Catalyst Scoring ---
+# Heuristic keyword-based scoring. No API keys required.
+# Optional LLM scoring available if ANTHROPIC_API_KEY or OPENAI_API_KEY is set.
+catalyst_scoring:
+  mode: heuristic                    # "heuristic" (free) or "llm" (requires API key)
+  use_manual_overrides: true         # Manual overrides always take priority
+  use_llm_if_available: false        # Set to true + add API key to enable LLM scoring
+  min_score_to_trade: 8              # Must match filters.min_catalyst_score
+  require_medium_or_high_confidence: true
+  reject_negative_flags: true        # Never trade if negative flags detected
+  reject_hype_only: true             # Never trade on social media hype alone
+  output_path: reports/automated_catalyst_scores.csv
+  auto_catalyst_scores_path: reports/automated_catalyst_scores.csv
+
+# --- Alpha Filters ---
+# Additional filters to improve entry quality and reduce bad trades.
+alpha_filters:
+  earnings_avoidance_days: 5     # Skip BUY if earnings report is within 5 calendar days
+  sector_max_positions: 2        # Never hold more than 2 stocks in the same GICS sector
+  max_extension_pct: 0.30        # Skip BUY if price is >30% above its 20-day MA (overextended)
+  gap_up_max_pct: 0.05           # At execution, skip BUY if stock has already gapped up >5%
+  atr_stop_multiplier: 1.5       # Stop loss = 1.5x ATR (adapts to each stock's volatility)
+  atr_max_stop_pct: 0.12         # ATR stop never wider than 12% (safety cap)
+  max_pct_below_52w_high: 0.15   # Skip BUY if price is >15% below its 52-week high
+  require_multi_day_volume: true  # Require elevated volume on at least 1 of prior 2 days
+  max_daily_entries: 3           # Take at most 3 new positions per day (top-ranked only)
+  min_adx: 25                    # Skip BUY if ADX < 25 (weak/choppy trend)
+  max_pre_breakout_range_pct: 0.08  # Skip BUY if 5-day range before breakout > 8% (choppy)
+  require_sector_etf_uptrend: true  # Skip BUY if sector ETF (XLK, XLV…) is below its 50MA
+
+# --- Stage 9: Automation Control ---
+# Controls fully automated paper trading behavior.
+automation:
+  fully_automated: true
+  # Set require_human_review_before_orders to true to review orders before execution.
+  # The bot will write proposed orders to reports/tomorrow_orders.csv
+  # and create reports/order_approval.csv for you to fill in.
+  # Set approved=true for any order you want executed, then run paper-execute.
+  require_human_review_before_orders: false
+  pause_on_low_confidence_catalysts: true   # Pauses if all catalysts are low confidence
+  pause_on_news_provider_failure: false     # Continue even if all news providers fail
+  max_automated_trades_per_day: 5           # Safety limit on automated trades
+  max_symbols_to_score_per_day: 300         # Max symbols to score per day
+  max_drawdown_pct: 0.20                    # Auto-pause if portfolio drops 20% from its peak
+  automation_state_path: reports/automation_state.json
+  alerts_log_path: reports/alerts_log.csv
+  order_approval_path: reports/order_approval.csv

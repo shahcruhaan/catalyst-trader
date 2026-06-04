@@ -1,0 +1,5 @@
+date,ticker,catalyst_type,headline,summary,catalyst_score,tradeable,confidence
+2026-06-02,NVDA,earnings,Nvidia beats earnings and raises guidance,Strong data center and AI chip demand drove record revenue. Management raised forward guidance significantly above analyst estimates.,9,true,high
+2026-06-02,META,guidance,Meta raises revenue outlook on AI ad targeting,AI-powered advertising tools driving higher click-through rates and advertiser ROI. Guidance raised for next two quarters.,8,true,high
+2026-06-02,EXAMPLESTOCK,contract,Example company wins large government contract,This is a sample row to show you the format. Replace or add real catalyst data here.,8,true,medium
+2026-06-02,MRVL,earnings,Q1 beat and AI networking guidance raised,Custom silicon demand accelerating,9,true,high

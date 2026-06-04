@@ -1,0 +1,64 @@
+# ============================================================
+# AI Catalyst Momentum Breakout Paper Trader
+# systemd Service File — Oracle Cloud / any Linux server
+# ============================================================
+#
+# INSTALLATION INSTRUCTIONS
+# --------------------------
+# 1. Upload your project to the server (e.g. ~/ai-catalyst-momentum-paper-trader/)
+# 2. Edit the three lines marked "EDIT THIS" below.
+# 3. Copy this file to the systemd directory:
+#       sudo cp deploy/papertrader.service /etc/systemd/system/
+# 4. Reload systemd and enable the service:
+#       sudo systemctl daemon-reload
+#       sudo systemctl enable papertrader
+#       sudo systemctl start papertrader
+# 5. Check it is running:
+#       sudo systemctl status papertrader
+# 6. View live logs:
+#       sudo journalctl -u papertrader -f
+#
+# STOPPING / RESTARTING
+#   sudo systemctl stop papertrader
+#   sudo systemctl restart papertrader
+#
+# ============================================================
+
+[Unit]
+Description=AI Catalyst Momentum Breakout Paper Trader
+# Wait for network and DNS to be fully up before starting
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# --- EDIT THIS: change to the Linux user that owns the project files ---
+User=ubuntu
+
+# --- EDIT THIS: absolute path to the project root directory ---
+WorkingDirectory=/home/ubuntu/ai-catalyst-momentum-paper-trader
+
+# --- EDIT THIS: absolute path to the Python interpreter inside your venv ---
+ExecStart=/home/ubuntu/ai-catalyst-momentum-paper-trader/venv/bin/python main.py run-bot
+
+# Load API keys and settings from .env file in the project root
+EnvironmentFile=/home/ubuntu/ai-catalyst-momentum-paper-trader/.env
+
+# Restart automatically if the process crashes or exits unexpectedly
+Restart=always
+# Wait 30 seconds before restarting (avoids rapid crash loops)
+RestartSec=30
+
+# Send SIGTERM first for clean shutdown; if not stopped within 90 s, force-kill
+TimeoutStopSec=90
+KillMode=mixed
+
+# Capture all stdout/stderr to journald (view with: journalctl -u papertrader -f)
+StandardOutput=journal
+StandardError=journal
+
+# Give the process a human-readable identifier in journal logs
+SyslogIdentifier=papertrader
+
+[Install]
+# Start this service when the server boots into multi-user (normal) mode
+WantedBy=multi-user.target

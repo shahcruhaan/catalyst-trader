@@ -1,0 +1,49 @@
+# ============================================================
+# .gitignore — Files that must NEVER be uploaded to GitHub
+# ============================================================
+
+# Secret environment file — contains your private API keys
+.env
+
+# Python cache files — generated automatically, not needed
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Virtual environment folder — contains installed packages
+venv/
+.venv/
+env/
+
+# Generated report files — these are created by the bot at runtime
+reports/daily_discovered_universe.csv
+reports/needs_catalyst_review.csv
+reports/paper_signals.csv
+reports/orders_log.csv
+reports/paper_state.json
+reports/performance_report.csv
+reports/backtest_results.csv
+reports/options_overlay_recommendations.csv
+reports/scheduler_log.csv
+reports/automation_state.json
+reports/news_cache.csv
+reports/automated_catalyst_scores.csv
+reports/alerts_log.csv
+reports/bot_heartbeat.txt
+reports/paper_state.json.bak
+reports/order_approval.csv
+reports/tomorrow_orders.csv
+
+# macOS system files
+.DS_Store
+
+# VS Code settings
+.vscode/
+
+# Pytest cache
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+.coverage

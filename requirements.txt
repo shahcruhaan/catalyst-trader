@@ -1,0 +1,21 @@
+# ============================================================
+# AI Catalyst Momentum Breakout Paper Trader
+# Python dependencies
+# ============================================================
+# Install everything at once with:
+#   pip install -r requirements.txt
+
+pandas>=2.0.0          # Tables and data manipulation
+numpy>=1.24.0          # Math and number crunching
+yfinance>=0.2.38       # Free stock price/volume data from Yahoo Finance
+PyYAML>=6.0            # Read config.yaml settings file
+python-dotenv>=1.0.0   # Read your secret .env file
+alpaca-py>=0.20.0      # Connect to Alpaca Paper Trading broker
+rich>=13.0.0           # Pretty colored terminal output
+tabulate>=0.9.0        # Print data as neat tables
+pytest>=7.4.0          # Run automated tests
+schedule>=1.2.0        # Built-in scheduler for run-bot mode
+pytz>=2024.1           # Timezone handling (US/Eastern market hours)
+requests>=2.31.0       # HTTP requests for API calls
+openai>=1.0.0          # Optional: LLM catalyst scoring via GPT-4o-mini (primary, set use_llm_if_available: true)
+anthropic>=0.20.0      # Optional: LLM catalyst scoring via Claude Haiku (fallback)

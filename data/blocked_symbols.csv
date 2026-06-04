@@ -1,0 +1,22 @@
+symbol,reason
+SQQQ,inverse leveraged ETF - not allowed in v1 strategy
+TQQQ,leveraged ETF - 3x leverage not allowed in this strategy
+UVXY,volatility ETF - not suitable for momentum strategy
+SVXY,inverse volatility ETF - not allowed
+VIXY,volatility ETF - not allowed
+SPXS,inverse leveraged ETF - not allowed
+SPXL,leveraged ETF - not allowed
+LABD,inverse leveraged biotech ETF - not allowed
+LABU,leveraged biotech ETF - not allowed
+SOXS,inverse leveraged semiconductor ETF - not allowed
+SOXL,leveraged semiconductor ETF - not allowed
+TZA,inverse leveraged small-cap ETF - not allowed
+TNA,leveraged small-cap ETF - not allowed
+FAZ,inverse leveraged financial ETF - not allowed
+FAS,leveraged financial ETF - not allowed
+YANG,inverse leveraged China ETF - not allowed
+YINN,leveraged China ETF - not allowed
+SRTY,inverse leveraged Russell 2000 ETF - not allowed
+URTY,leveraged Russell 2000 ETF - not allowed
+SDOW,inverse leveraged Dow ETF - not allowed
+UDOW,leveraged Dow ETF - not allowed

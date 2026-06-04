@@ -1,0 +1,2 @@
+timestamp,date,task_name,status,duration_seconds,detail
+2026-06-03 13:18:03,2026-06-03,paper_scan,SUCCESS,12.5,10 tickers
